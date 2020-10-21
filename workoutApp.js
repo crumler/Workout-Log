@@ -2,6 +2,7 @@ require('dotenv').config();
 
 var express = require('express');
 var app = express();
+var authTest = require('./controllers/authtestcontroller');
 var main = require('./controllers/usercontroller');
 var log = require('./controllers/logcontroller');
 var sequelize = require('./db');
@@ -14,6 +15,8 @@ app.use(require('./middleware/headers'));
 
 app.use('/user', main);
 app.use('/log', log);
+
+app.use(require('./middleware/validate-session'));
 
 
 app.listen(3500, function() {

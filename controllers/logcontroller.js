@@ -10,9 +10,28 @@ router.get('/', (req, res) => {
     res.send("Entryway")
 });
 
-router.get('/log', (req, res) => {
-    res.send("Log GET Test successful")
+//GET all logs for single user
+router.get('/log', function (req, res) {
+    var userid = req.user.id;
+
+    AuthTestModel
+        .findAll({
+            where: { owner: userid }
+        })
+        .then(
+            function findAllSuccess(data) {
+                res.json(data);
+            },
+            function findAllError(err) {
+                res.send(500, err.message);
+            }
+        );
 });
+
+
+// router.get('/log', (req, res) => {
+//     res.send("Log GET Test successful")
+// });
 
 //Log POST endpoint (a.k.a. where I hit my roadblock that I could not overcome in time...posting via Postman results in "column "description" of relation "logs" does not exist"".....but why does it say "logs" and not "log"?  Where is it getting "logs" plural?  I've done an entire search of my server-side code for the word "logs", but came up with nothing.)
 router.post('/log', (req, res) => {

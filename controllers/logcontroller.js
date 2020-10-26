@@ -14,9 +14,9 @@ router.get('/', (req, res) => {
 router.get('/log', function (req, res) {
     var userid = req.user.id;
 
-    AuthTestModel
+    LogModel
         .findAll({
-            where: { owner: userid }
+            where: { owner_id: userid }
         })
         .then(
             function findAllSuccess(data) {
@@ -29,9 +29,6 @@ router.get('/log', function (req, res) {
 });
 
 
-// router.get('/log', (req, res) => {
-//     res.send("Log GET Test successful")
-// });
 
 //Log POST endpoint (a.k.a. where I hit my roadblock that I could not overcome in time...posting via Postman results in "column "description" of relation "logs" does not exist"".....but why does it say "logs" and not "log"?  Where is it getting "logs" plural?  I've done an entire search of my server-side code for the word "logs", but came up with nothing.)
 router.post('/log', (req, res) => {
@@ -39,13 +36,13 @@ router.post('/log', (req, res) => {
     var describeField = req.body.log.description;
     var define = req.body.log.definition;
     var theResult = req.body.log.result;
-    //var theOwner = req.body.log.owner_id;
+    var theOwner = req.user.id;
 
     LogModel.create({
             description: describeField,
             definition: define,
-            result: theResult
-            //owner_id: theOwner
+            result: theResult,
+            owner_id: theOwner
     }).then(
         function createSuccess(log) {
             res.json({
@@ -57,9 +54,58 @@ router.post('/log', (req, res) => {
             res.send(500, err.message);
         }
     );
-        // }).then(dataFromDatabase => {
-        //     res.send('Data submitted successfully!')
-        // })
+
+});
+
+// /log/:id GET
+
+// UPDATE endpoint
+router.put('/log/update/:id', function (req, res) {
+    let theOwner = req.user.id;
+    let data = req.params.id;
+    let description = req.body.log.description;
+    let definition = req.body.log.definition;
+    let result = req.body.log.result;
+
+    LogModel.update({
+        description: description,
+        definition: definition,
+        result: result
+    },
+    {where: {id: data}}
+    ).then(
+        function updateSuccess(updatedLog) {
+            res.json({
+                description: description,
+                definition: definition,
+                result: result               
+            });
+        },
+        function updateError(err) {
+            res.send(500, err.message);
+        }
+    )
+});
+
+
+// DELETE endpoint
+router.delete('/log/delete/:id', (req, res) => {
+    let theOwner = req.user.id;
+    let data = req.params.id;
+
+    LogModel.destroy({
+        where: {id: data, owner_id: theOwner}
+    }).then(
+        function deleteSuccess(data) {
+            res.json({
+                data: data,
+                message: 'deleted'
+            });
+        },
+        function createError(err) {
+            res.send(404, err.message);
+        }
+    );
 });
 
 module.exports = router;

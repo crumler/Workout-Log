@@ -14,9 +14,8 @@ app.use(express.json());
 app.use(require('./middleware/headers'));
 
 app.use('/user', main);
-app.use('/log', log);
-
 app.use(require('./middleware/validate-session'));
+app.use('/log', log);
 
 
 app.listen(3500, function() {
